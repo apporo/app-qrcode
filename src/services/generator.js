@@ -5,7 +5,6 @@ const chores = Devebot.require('chores');
 const lodash = Devebot.require('lodash');
 const Writable = require('stream').Writable;
 const qr = require('qr-image');
-const through2 = require('through2');
 const misc = require('../toolkits/util');
 
 function QrcodeService(params) {
@@ -25,6 +24,9 @@ function QrcodeService(params) {
   let pluginCfg = params.sandboxConfig;
   this.generate = function(opts, inputData, outputStream) {
     opts = opts || {};
+    if (pluginCfg.nullable === false && inputData == null) {
+      return Promise.reject(new Error('Input data must not be null'));
+    }
     return new Promise(function(onResolved, onRejected) {
       if (outputStream instanceof Writable) {
         var qrStream = qr.image(misc.stringify(inputData), { type: 'svg' });
